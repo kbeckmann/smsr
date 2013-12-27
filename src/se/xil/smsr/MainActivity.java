@@ -1,41 +1,24 @@
 package se.xil.smsr;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-import se.xil.smsr.R;
-
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.EditText;
 import android.widget.Button;
-
-;
+import android.widget.EditText;
 
 public class MainActivity extends Activity {
 
@@ -51,19 +34,16 @@ public class MainActivity extends Activity {
 
 			for (String mess : text) {
 
-				
 				Log.i("SMSR", mess);
 				sendSMS(mRecipient.getText().toString(), mess);
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 			}
-
 		}
 	};
+
 	private OnClickListener mDownloadListener = new OnClickListener() {
 
 		@Override
@@ -71,20 +51,21 @@ public class MainActivity extends Activity {
 			mDownloader.execute(0);
 		}
 	};
-	
+
 	AsyncTask<Integer, Integer, Integer> mDownloader = new AsyncTask<Integer, Integer, Integer>() {
 
 		@Override
 		protected Integer doInBackground(Integer... params) {
 			try {
 				final String mess = download("http://sms.xil.se/a.txt");
-				
-				runOnUiThread(new Runnable(){
+
+				runOnUiThread(new Runnable() {
 
 					@Override
 					public void run() {
 						mMessage.setText(mess);
-					}});
+					}
+				});
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -95,16 +76,16 @@ public class MainActivity extends Activity {
 			return null;
 		}
 	};
-	
-	
-	public static String download(String url) throws ParseException, IOException {
 
-	    DefaultHttpClient httpClient = new DefaultHttpClient();
-	    HttpGet httpGet = new HttpGet(url);
+	public static String download(String url) throws ParseException,
+			IOException {
 
-	    HttpResponse httpResponse = httpClient.execute(httpGet);
-	    HttpEntity httpEntity = httpResponse.getEntity();
-	    return EntityUtils.toString(httpEntity);
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		HttpGet httpGet = new HttpGet(url);
+
+		HttpResponse httpResponse = httpClient.execute(httpGet);
+		HttpEntity httpEntity = httpResponse.getEntity();
+		return EntityUtils.toString(httpEntity);
 	}
 
 	public static void sendSMS(String phoneNumber, String message) {
