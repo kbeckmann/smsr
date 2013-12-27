@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -107,7 +107,7 @@ public class MainActivity extends Activity {
 	    return EntityUtils.toString(httpEntity);
 	}
 
-	private static void sendSMS(String phoneNumber, String message) {
+	public static void sendSMS(String phoneNumber, String message) {
 		SmsManager sms = SmsManager.getDefault();
 		sms.sendTextMessage(phoneNumber, null, message, null, null);
 	}
