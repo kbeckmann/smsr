@@ -19,9 +19,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 public class MainActivity extends Activity {
 
+	private ProgressBar mProgressBar;
 	private EditText mRecipient;
 	private EditText mMessage;
 	private OnClickListener mSendListener = new OnClickListener() {
@@ -29,18 +31,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void onClick(View v) {
 
-			String[] text = mMessage.getText().toString().split("\\r?\\n");
-			Log.i("SMSR", "Sending..." + text.length);
-
-			for (String mess : text) {
-
-				Log.i("SMSR", mess);
-				sendSMS(mRecipient.getText().toString(), mess);
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-				}
-			}
+			new SendSMSTask().execute(0);
 		}
 	};
 
@@ -48,21 +39,31 @@ public class MainActivity extends Activity {
 
 		@Override
 		public void onClick(View v) {
-			mDownloader.execute(0);
+			
+			new DownloadTask().execute(0);
 		}
 	};
 
-	AsyncTask<Integer, Integer, Integer> mDownloader = new AsyncTask<Integer, Integer, Integer>() {
+	class DownloadTask extends AsyncTask<Integer, Integer, Integer> {
 
 		@Override
 		protected Integer doInBackground(Integer... params) {
 			try {
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						mProgressBar.setVisibility(View.VISIBLE);
+					}
+				});
+
 				final String mess = download("http://sms.xil.se/a.txt");
 
 				runOnUiThread(new Runnable() {
 
 					@Override
 					public void run() {
+						mProgressBar.setVisibility(View.GONE);
 						mMessage.setText(mess);
 					}
 				});
@@ -75,7 +76,43 @@ public class MainActivity extends Activity {
 			}
 			return null;
 		}
-	};
+	}
+
+	class SendSMSTask extends AsyncTask<Integer, Integer, Integer> {
+
+		@Override
+		protected Integer doInBackground(Integer... params) {
+			String[] text = mMessage.getText().toString().split("\\r?\\n");
+			Log.i("SMSR", "Sending..." + text.length);
+
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					mProgressBar.setVisibility(View.VISIBLE);
+				}
+			});
+
+			for (String mess : text) {
+
+				Log.i("SMSR", mess);
+				sendSMS(mRecipient.getText().toString(), mess);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+			}
+
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					mProgressBar.setVisibility(View.GONE);
+				}
+			});
+			return null;
+		}
+	}
 
 	public static String download(String url) throws ParseException,
 			IOException {
@@ -103,6 +140,7 @@ public class MainActivity extends Activity {
 		((Button) findViewById(R.id.download))
 				.setOnClickListener(mDownloadListener);
 		((Button) findViewById(R.id.send)).setOnClickListener(mSendListener);
+		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 	}
 
 	@Override
