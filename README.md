@@ -1,1 +1,1 @@
-Epic fulkod.
+This is a crude hack that can 1) download ascii-art from a HTTP-server and send it over SMS and 2) reply to each received SMS with a translated response (translated via google translate inofficial api). It was quickly hacked together at #30c3. Amazing crap code. Don't look.
